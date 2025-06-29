@@ -68,7 +68,7 @@
     <div class="container">
         <div class="header">
             <h1>Live Dashboard Sensor Dinamis</h1>
-            <p>Data diperbarui secara otomatis setiap 15 detik.</p>
+            <p>Data diperbarui secara otomatis setiap 10 detik.</p>
             <div class="timestamp" id="timestamp-display">Menunggu data...</div>
         </div>
         <div id="dashboard-content">
@@ -85,112 +85,90 @@
     <script>
         let sensorChart;
 
-        // --- (Bagian inisialisasi chart tetap sama) ---
-        function createDashboardElements() { /* ... sama seperti sebelumnya ... */ }
-        function initializeChart() { /* ... sama seperti sebelumnya ... */ }
-        // Salin-tempel fungsi createDashboardElements dan initializeChart dari kode sebelumnya ke sini
-
-        // --- LOGIKA BARU UNTUK GAUGE DINAMIS ---
-
-        // 1. Definisikan rentang nilai untuk setiap parameter
-        const SENSOR_RANGES = {
-            default:          { min: 0, max: 100 }, // Default untuk persentase
-            air_temperature:  { min: 0, max: 100 },  // Derajat Celsius
-            temperature:      { min: 0, max: 100 },  // Derajat Celsius
-            humidity:         { min: 0, max: 100 },
-            air_humidity:     { min: 0, max: 100 },
-            ph:               { min: 0, max: 14 },
-            nitrogen:         { min: 0, max: 250 }, // mg/kg, sesuaikan jika perlu
-            phosphorus:       { min: 0, max: 250 }, // mg/kg, sesuaikan jika perlu
-            potassium:        { min: 0, max: 250 }  // mg/kg, sesuaikan jika perlu
-        };
-
-        // 2. Fungsi untuk menghitung persentase dari sebuah nilai
-        function calculatePercentage(value, type) {
-            const range = SENSOR_RANGES[type] || SENSOR_RANGES.default;
-            if (value === null || isNaN(parseFloat(value))) return 0;
-
-            let val = parseFloat(value);
-            // Batasi nilai agar tidak di luar rentang (clamping)
-            val = Math.max(range.min, Math.min(range.max, val));
-            
-            const percentage = ((val - range.min) / (range.max - range.min)) * 100;
-            return percentage.toFixed(2);
-        }
-
-        // 3. Fungsi baru untuk membuat HTML Gauge Dinamis
-        function createGaugeHTML(type, value, unit, label) {
-            const percentage = calculatePercentage(value, type);
-            const displayValue = (value !== null && !isNaN(parseFloat(value))) ? parseFloat(value).toFixed(1) : 'N/A';
-            const displayUnit = (displayValue !== 'N/A') ? `<small>${unit}</small>` : '';
-            
-            // Tentukan warna berdasarkan tipe
-            let colorVar = '--color-other';
-            if (type.includes('temp')) colorVar = '--color-temp';
-            else if (type.includes('humi')) colorVar = '--color-humidity';
-            else if (type === 'ph') colorVar = '--color-ph';
-            else if (type === 'nitrogen') colorVar = '--color-nitro';
-            
-            return `
-                <div> <!-- Wrapper untuk gauge -->
-                    <div class="gauge-circle" style="--p:${percentage}; --color:var(${colorVar})">
-                        <div class="gauge-inner">
-                            <div class="gauge-value">${displayValue}${displayUnit}</div>
-                        </div>
-                    </div>
-                    <div class="gauge-label">${label}</div>
-                </div>
-            `;
-        }
-
-        // --- (Fungsi fetchDataAndUpdate yang dimodifikasi) ---
-        function fetchDataAndUpdate() {
-            $.ajax({
-                url: '/api/sensor-data',
-                type: 'GET',
-                dataType: 'json',
-                success: function(response) {
-                    if ($('#loader').length) {
-                        createDashboardElements();
-                        initializeChart();
-                    }
-                    
-                    // --- UPDATE GAUGE DENGAN LOGIKA BARU ---
-                    const gauges = response.latestReading;
-                    const gaugeContainer = $('#gauge-container');
-                    gaugeContainer.html(''); // Kosongkan gauge lama
-
-                    gaugeContainer.append(createGaugeHTML('air_temperature', gauges.air_temperature, '°C', 'Suhu Udara'));
-                    gaugeContainer.append(createGaugeHTML('air_humidity', gauges.air_humidity, '%', 'Kelembaban Udara'));
-                    gaugeContainer.append(createGaugeHTML('temperature', gauges.temperature, '°C', 'Suhu Tanah'));
-                    gaugeContainer.append(createGaugeHTML('humidity', gauges.humidity, '%', 'Kelembaban Tanah'));
-                    gaugeContainer.append(createGaugeHTML('ph', gauges.ph, '', 'pH Tanah'));
-                    gaugeContainer.append(createGaugeHTML('nitrogen', gauges.nitrogen, ' mg/kg', 'Nitrogen (N)'));
-                    gaugeContainer.append(createGaugeHTML('phosphorus', gauges.phosphorus, ' mg/kg', 'Fosfor (P)'));
-                    gaugeContainer.append(createGaugeHTML('potassium', gauges.potassium, ' mg/kg', 'Kalium (K)'));
-                    
-                    // --- (Bagian update chart dan timestamp tetap sama) ---
-                    const chartData = response.chartData;
-                    sensorChart.data.labels = chartData.labels;
-                    sensorChart.data.datasets[0].data = chartData.datasets.air_temperature;
-                    // ... (sisa update chart)
-
-                    const timestampEl = $('#timestamp-display');
-                    // ... (sisa update timestamp)
-                },
-                error: function(xhr) { /* ... sama seperti sebelumnya ... */ }
-            });
-        }
-        
-        // (Pastikan untuk menyalin fungsi yang tidak berubah dari kode sebelumnya)
+        // ... (Fungsi createDashboardElements, initializeChart, SENSOR_RANGES, dll tetap sama) ...
         function createDashboardElements() {
             const content = `<div class="gauge-grid" id="gauge-container"></div> <div class="chart-wrapper"><canvas id="sensorChart"></canvas></div>`;
             $('#dashboard-content').html(content);
         }
+
         function initializeChart() {
             const ctx = document.getElementById('sensorChart').getContext('2d');
-            sensorChart = new Chart(ctx, { type: 'line', data: { labels: [], datasets: [ { label: 'Suhu Udara (°C)', data: [], borderColor: 'var(--color-temp)', backgroundColor: 'rgba(239, 68, 68, 0.1)', borderWidth: 2, fill: true, tension: 0.4 }, { label: 'Kelembaban Udara (%)', data: [], borderColor: 'var(--color-humidity)', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 2, fill: true, tension: 0.4 }, { label: 'Suhu Tanah (°C)', data: [], borderColor: '#f97316', backgroundColor: 'rgba(249, 115, 22, 0.1)', borderWidth: 2, fill: true, tension: 0.4, hidden: true }, { label: 'Kelembaban Tanah (%)', data: [], borderColor: 'var(--color-nitro)', backgroundColor: 'rgba(22, 163, 74, 0.1)', borderWidth: 2, fill: true, tension: 0.4, hidden: true } ] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: false } }, plugins: { legend: { position: 'top' }, title: { display: true, text: 'Grafik Tren Sensor (30 Data Terakhir)', font: { size: 16 } } }, interaction: { intersect: false, mode: 'index' } } });
+            sensorChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        { label: 'Suhu Udara (°C)', data: [], borderColor: 'var(--color-temp)', backgroundColor: 'rgba(239, 68, 68, 0.1)', borderWidth: 2, fill: true, tension: 0.4 },
+                        { label: 'Kelembaban Udara (%)', data: [], borderColor: 'var(--color-humidity)', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 2, fill: true, tension: 0.4 },
+                        { label: 'Suhu Tanah (°C)', data: [], borderColor: '#f97316', backgroundColor: 'rgba(249, 115, 22, 0.1)', borderWidth: 2, fill: true, tension: 0.4, hidden: true },
+                        { label: 'Kelembaban Tanah (%)', data: [], borderColor: 'var(--color-nitro)', backgroundColor: 'rgba(22, 163, 74, 0.1)', borderWidth: 2, fill: true, tension: 0.4, hidden: true }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        // Sumbu Y sekarang tidak memiliki konfigurasi min/max/beginAtZero di awal.
+                        // Akan diatur secara dinamis oleh JavaScript.
+                        y: {}
+                    },
+                    plugins: {
+                        legend: { position: 'top', onClick: (e, legendItem, legend) => {
+                            // Fungsi default untuk menyembunyikan/menampilkan dataset
+                            Chart.defaults.plugins.legend.onClick(e, legendItem, legend);
+                            // Panggil fungsi untuk mengkalkulasi ulang sumbu Y setelah user mengklik legenda
+                            updateYAxis(legend.chart);
+                        }},
+                        title: { display: true, text: 'Grafik Tren Sensor (30 Data Terakhir)', font: { size: 16 } }
+                    },
+                    interaction: { intersect: false, mode: 'index' }
+                }
+            });
         }
+        
+        const SENSOR_RANGES = {
+            default: { min: 0, max: 100 }, air_temperature: { min: 0, max: 100 }, temperature: { min: 0, max: 100 },
+            humidity: { min: 0, max: 100 }, air_humidity: { min: 0, max: 100 }, ph: { min: 0, max: 14 },
+            nitrogen: { min: 0, max: 250 }, phosphorus: { min: 0, max: 250 }, potassium: { min: 0, max: 250 }
+        };
+
+        function calculatePercentage(value, type) { const range = SENSOR_RANGES[type] || SENSOR_RANGES.default; if (value === null || isNaN(parseFloat(value))) return 0; let val = parseFloat(value); val = Math.max(range.min, Math.min(range.max, val)); const percentage = ((val - range.min) / (range.max - range.min)) * 100; return percentage.toFixed(2); }
+        function createGaugeHTML(type, value, unit, label) { const percentage = calculatePercentage(value, type); const displayValue = (value !== null && !isNaN(parseFloat(value))) ? parseFloat(value).toFixed(1) : 'N/A'; const displayUnit = (displayValue !== 'N/A') ? `<small>${unit}</small>` : ''; let colorVar = '--color-other'; if (type.includes('temp')) colorVar = '--color-temp'; else if (type.includes('humi')) colorVar = '--color-humidity'; else if (type === 'ph') colorVar = '--color-ph'; else if (type === 'nitrogen') colorVar = '--color-nitro'; return `<div><div class="gauge-circle" style="--p:${percentage}; --color:var(${colorVar})"><div class="gauge-inner"><div class="gauge-value">${displayValue}${displayUnit}</div></div></div><div class="gauge-label">${label}</div></div>`; }
+
+        // --- FUNGSI BARU: Untuk memperbarui Sumbu Y secara dinamis ---
+        function updateYAxis(chart) {
+            let allVisibleData = [];
+            
+            // Kumpulkan semua data dari dataset yang sedang terlihat
+            chart.data.datasets.forEach((dataset, index) => {
+                if (chart.isDatasetVisible(index)) {
+                    allVisibleData.push(...dataset.data);
+                }
+            });
+
+            // Filter nilai null atau undefined
+            allVisibleData = allVisibleData.filter(v => v !== null && v !== undefined);
+
+            // Jika tidak ada data, jangan lakukan apa-apa
+            if (allVisibleData.length === 0) {
+                return;
+            }
+
+            const dataMin = Math.min(...allVisibleData);
+            const dataMax = Math.max(...allVisibleData);
+
+            // Jika semua nilai data sama
+            if (dataMin === dataMax) {
+                chart.options.scales.y.min = dataMin - 5; // Beri ruang 5 unit
+                chart.options.scales.y.max = dataMax + 5;
+            } else {
+                // Tambahkan padding 10% di atas dan di bawah
+                const padding = (dataMax - dataMin) * 0.1;
+                chart.options.scales.y.min = Math.floor(dataMin - padding);
+                chart.options.scales.y.max = Math.ceil(dataMax + padding);
+            }
+        }
+
         function fetchDataAndUpdate() {
             $.ajax({
                 url: '/api/sensor-data',
@@ -201,6 +179,8 @@
                         createDashboardElements();
                         initializeChart();
                     }
+                    
+                    // 1. UPDATE GAUGE
                     const gauges = response.latestReading;
                     const gaugeContainer = $('#gauge-container');
                     gaugeContainer.html('');
@@ -212,13 +192,22 @@
                     gaugeContainer.append(createGaugeHTML('nitrogen', gauges.nitrogen, ' mg/kg', 'Nitrogen (N)'));
                     gaugeContainer.append(createGaugeHTML('phosphorus', gauges.phosphorus, ' mg/kg', 'Fosfor (P)'));
                     gaugeContainer.append(createGaugeHTML('potassium', gauges.potassium, ' mg/kg', 'Kalium (K)'));
+                    
+                    // 2. UPDATE DATA GRAFIK
                     const chartData = response.chartData;
                     sensorChart.data.labels = chartData.labels;
                     sensorChart.data.datasets[0].data = chartData.datasets.air_temperature;
                     sensorChart.data.datasets[1].data = chartData.datasets.air_humidity;
                     sensorChart.data.datasets[2].data = chartData.datasets.soil_temperature;
                     sensorChart.data.datasets[3].data = chartData.datasets.soil_humidity;
+                    
+                    // 3. Panggil fungsi untuk mengatur ulang skala Sumbu Y
+                    updateYAxis(sensorChart);
+                    
+                    // 4. Perbarui grafik secara keseluruhan
                     sensorChart.update();
+
+                    // 5. UPDATE TIMESTAMP
                     const timestampEl = $('#timestamp-display');
                     const d = new Date(gauges.timestamp);
                     timestampEl.html(`<strong>Data Terakhir:</strong> ${d.toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}`);
@@ -231,7 +220,7 @@
                 }
             });
         }
-        // Panggil fungsi saat halaman pertama kali dimuat
+
         $(document).ready(function() {
             fetchDataAndUpdate();
             setInterval(fetchDataAndUpdate, 15000); 
@@ -239,4 +228,3 @@
     </script>
 </body>
 </html>
-
