@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Dashboard Sensor Lengkap</title>
+    <title>Demo Day Yotta</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('assets/images/yotta.png') }}">
     <style>
         :root {
             --gauge-bg-color: #e2e8f0; --gauge-inner-color: #ffffff; --text-color-primary: #1a202c;
@@ -48,10 +50,43 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header"><h1>Live Dashboard Monitoring Sensor</h1><p>Data diperbarui secara otomatis setiap 15 detik.</p><div class="timestamp" id="timestamp-display">Menunggu data...</div></div>
-        <div id="dashboard-content"><div class="loader-container" id="loader"><div class="loader"></div><p style="margin-top: 1rem; color: #666;">Memuat data awal...</p></div></div>
+<div class="container" style="max-width: 1200px; margin: 0 auto; padding: 2rem;">
+    <div class="header" style="text-align: center; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: center; align-items: center; gap: 3rem; margin-bottom: 1.5rem;">
+            <img src="{{ asset('assets/images/logoum.png') }}" alt="Logo UM" style="height: 70px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">
+            <img src="{{ asset('assets/images/logotrans.png') }}" alt="Logo LPPM" style="height: 70px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));">
+        </div>
+        <h1>Live Dashboard Monitoring Sensor</h1>
+<p><strong>Universitas Negeri Malang - LPPM</strong></p>
+<p>Data diperbarui otomatis setiap 15 detik...</p>
+
+        <div class="timestamp" id="timestamp-display"
+            style="display: inline-block; background-color: #edf2f7; color: #2d3748;
+                   padding: 0.5rem 1rem; border-radius: 9999px; margin-top: 1rem;
+                   font-weight: 500; transition: background-color 0.3s ease;">
+            Menunggu data...
+        </div>
     </div>
+
+    <div id="dashboard-content" style="margin-top: 2rem;">
+        <div class="loader-container" id="loader" style="text-align: center; padding: 4rem 0;">
+            <div class="loader" style="border: 8px solid #e2e8f0; border-top: 8px solid #4299e1;
+                                       border-radius: 50%; width: 60px; height: 60px;
+                                       animation: spin 1.5s linear infinite; margin: 0 auto;">
+            </div>
+            <p style="margin-top: 1rem; color: #718096;">Memuat data awal...</p>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
     <script>

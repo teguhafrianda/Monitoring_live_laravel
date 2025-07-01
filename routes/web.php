@@ -12,12 +12,14 @@ use App\Http\Controllers\SensorApiController;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+Route::get('/', [SensorController::class, 'index']);
+
 
 // Tambahkan route ini
-Route::get('/data-sensor', [SensorController::class, 'index'])->name('sensor.data');
+// Route::get('/data-sensor', [SensorController::class, 'index'])->name('sensor.data');
 
 // routes/api.php
 Route::get('/api/sensor-data', [SensorApiController::class, 'fetchData']);
