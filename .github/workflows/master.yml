@@ -1,0 +1,38 @@
+name: Yotta Demoday Deploy
+on:
+  push:
+    branches: [master]
+    paths:
+      - "app/**"
+      - "bootstrap/**"
+      - "config/**"
+      - "database/**"
+      - "resources/**"
+      - "routes/**"
+      - "storage/**"
+      - "test/**"
+      - ".editorconfig"
+      - ".env.example"
+      - ".gitattributes"
+      - ".gitignore"
+      - "artisan"
+      - "composer.json"
+      - "composer.lock"
+      - "composer.lock"
+      - "package.json"
+      - "phpunit.xml"
+      - "README.md"
+      - "vite.config.js"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Here is the deployment action
+      - name: Upload from laravel yotta iot
+        uses: airvzxf/ftp-deployment-action@latest
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          user: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          remote_dir: "/domains/demoday.aksarayotta.com/public_html"
