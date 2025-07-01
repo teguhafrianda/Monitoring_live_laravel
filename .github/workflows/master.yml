@@ -18,11 +18,11 @@ on:
       - "artisan"
       - "composer.json"
       - "composer.lock"
-      - "composer.lock"
       - "package.json"
       - "phpunit.xml"
       - "README.md"
       - "vite.config.js"
+
 jobs:
   build:
     runs-on: ubuntu-latest
