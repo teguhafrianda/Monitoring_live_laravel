@@ -1,4 +1,4 @@
-name: Yotta Demoday Deploy
+name: Demo Aksara Yotta Deployment
 on:
   push:
     branches: [master]
@@ -29,10 +29,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # Here is the deployment action
-      - name: Upload from laravel yotta iot
+      - name: Upload from laravel mdfebumk via FTP
         uses: airvzxf/ftp-deployment-action@latest
         with:
           server: ${{ secrets.FTP_SERVER }}
           user: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          remote_dir: "/domains/demoday.aksarayotta.com/public_html"
+          server-dir: "/domains/demoday.aksarayotta.com/public_html"
