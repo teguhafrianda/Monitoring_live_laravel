@@ -82,12 +82,15 @@ class SensorApiController extends Controller
             $chartData = [
                 'labels' => [],
                 'datasets' => [
-                    'air_temperature' => [],
-                    'air_humidity' => [],
-                    'soil_temperature' => [],
-                    'soil_humidity' => [],
+                    'air_temperature'   => [], 'air_humidity'      => [],
+                    'soil_temperature'  => [], 'soil_humidity'     => [],
+                    'conductivity'      => [], 'ph'                => [],
+                    'nitrogen'          => [], 'phosphorus'        => [],
+                    'potassium'         => [], 'salinity'          => [],
+                    'tds'               => [], 'par'               => [],
                 ]
             ];
+
 
             // Loop melalui data historis untuk mengisi data grafik.
             foreach ($historicalData as $data) {
@@ -101,6 +104,14 @@ class SensorApiController extends Controller
                 $chartData['datasets']['air_humidity'][] = $data['air_humidity'] ?? null;
                 $chartData['datasets']['soil_temperature'][] = $data['temperature'] ?? null;
                 $chartData['datasets']['soil_humidity'][] = $data['humidity'] ?? null;
+                $chartData['datasets']['conductivity'][] = $data['conductivity'] ?? null;
+                $chartData['datasets']['ph'][] = $data['ph'] ?? null;
+                $chartData['datasets']['nitrogen'][] = $data['nitrogen'] ?? null;
+                $chartData['datasets']['phosphorus'][] = $data['phosphorus'] ?? null;
+                $chartData['datasets']['potassium'][] = $data['potassium'] ?? null;
+                $chartData['datasets']['salinity'][] = $data['salinity'] ?? null;
+                $chartData['datasets']['tds'][] = $data['tds'] ?? null;
+                $chartData['datasets']['par'][] = $data['par'] ?? null;
             }
 
             // Kirim data akhir yang sudah bersih dan terstruktur ke frontend.
